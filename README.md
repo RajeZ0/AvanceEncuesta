@@ -69,14 +69,14 @@ Antes de comenzar, asegúrate de tener instalado:
      ```
 
 2. **Git** (opcional, para clonar el repositorio)
-   - Descarga desde: https://git-scm.com/
+   - Descarga desde: git clone https://github.com/RajeZ0/AvanceEncuesta
 
 ### Paso 1: Obtener el Proyecto
 
 Si tienes Git instalado:
 ```bash
-git clone <url-del-repositorio>
-cd "Avance Proyecto"
+git clone https://github.com/RajeZ0/AvanceEncuesta
+cd "AvanceEncuesta"
 ```
 
 O simplemente descarga y extrae el archivo ZIP del proyecto.
