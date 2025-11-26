@@ -26,10 +26,9 @@ Esta aplicación permite:
 - **SQLite** - Base de datos (desarrollo)
 - **Next.js API Routes** - Endpoints del servidor
 
-### PWA
-- **@ducanh2912/next-pwa** - Soporte para Progressive Web App
 
-## 📁 Estructura del Proyecto
+
+##  Estructura del Proyecto
 
 ```
 Avance Proyecto/
@@ -217,7 +216,7 @@ Esto abrirá una interfaz web en `http://localhost:5555` donde puedes:
    - Visualiza todos los envíos de los municipios
    - Revisa calificaciones y respuestas
 
-## 🎨 Características Adicionales
+##  Características Adicionales
 
 ### Tema Claro/Oscuro
 - Usa el botón de sol/luna en la esquina superior derecha
@@ -231,7 +230,7 @@ Esto abrirá una interfaz web en `http://localhost:5555` donde puedes:
 - En producción, la app se puede instalar en dispositivos
 - Funciona offline con service workers
 
-## 🔧 Comandos Útiles
+##  Comandos Útiles
 
 ### Desarrollo
 ```bash
@@ -252,33 +251,10 @@ npx prisma migrate deploy      # Aplica migraciones
 ```bash
 npm run lint         # Verifica errores de código
 ```
-
-## 🐛 Solución de Problemas
-
-### Error: "Cannot find module '@prisma/client'"
-```bash
-npx prisma generate
 ```
 
-### Error: "Database file not found"
-Verifica que la ruta en `.env` sea correcta:
-```env
-DATABASE_URL="file:../back/dev.db"
-```
 
-### El puerto 3000 está en uso
-Cambia el puerto al iniciar:
-```bash
-npm run dev -- -p 3001
-```
-
-### Cambios en schema.prisma no se reflejan
-```bash
-npx prisma generate
-npx prisma migrate dev
-```
-
-## 📊 Modelo de Datos
+##  Modelo de Datos
 
 ### User (Usuario)
 - `id`: Identificador único
