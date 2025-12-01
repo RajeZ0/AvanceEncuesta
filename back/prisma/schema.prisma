@@ -1,11 +1,12 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "../../front/node_modules/@prisma/client"
 }
+
 datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
 }
-
 
 model User {
   id        String   @id @default(uuid())
@@ -43,6 +44,7 @@ model Submission {
   userId    String
   user      User     @relation(fields: [userId], references: [id])
   status    String   @default("IN_PROGRESS")
+  completedSectionIds String @default("[]")
   score     Float?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

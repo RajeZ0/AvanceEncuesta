@@ -9,7 +9,7 @@ import { FinalizeButton } from './FinalizeButton';
 interface Section {
     id: string;
     title: string;
-    description: string;
+    description: string | null;
     weight: number;
     order: number;
     _count: {
@@ -26,11 +26,18 @@ interface User {
 interface DashboardClientProps {
     sections: Section[];
     user: any;
+    completedSectionIds: string[];
+    currentScore: number;
 }
 
-export function DashboardClient({ sections, user }: DashboardClientProps) {
+export function DashboardClient({ sections, user, completedSectionIds, currentScore }: DashboardClientProps) {
     const { theme } = useTheme();
     const isDark = theme === 'dark';
+
+    const getStatusColor = (sectionId: string, questionCount: number) => {
+        if (completedSectionIds.includes(sectionId)) return 'bg-green-500';
+        return 'bg-gray-300';
+    };
 
     return (
         <div className={`min-h-screen transition-colors duration-300 ${isDark ? 'bg-slate-900' : 'bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50'}`}>
@@ -72,7 +79,7 @@ export function DashboardClient({ sections, user }: DashboardClientProps) {
                         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1557804506-669a67965ba0?ixlib=rb-4.0.3&auto=format&fit=crop&w=2074&q=80')] bg-cover bg-center opacity-10" />
                         <div className="relative z-10">
                             <h2 className="text-3xl font-bold text-white mb-2">¡Bienvenido!</h2>
-                            <p className="text-blue-100 max-w-2xl">Complete cada sección de evaluación para generar su indicador municipal. El sistema guardará su progreso automáticamente.</p>
+                            <p className="text-blue-100 max-w-2xl">Complete cada módulo de evaluación para generar su indicador municipal. El sistema guardará su progreso automáticamente.</p>
                         </div>
                         <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/20 rounded-full blur-3xl" />
                     </div>
@@ -86,7 +93,7 @@ export function DashboardClient({ sections, user }: DashboardClientProps) {
                             </div>
                             <div>
                                 <p className={`text-2xl font-bold ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>{sections.length}</p>
-                                <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>Secciones Totales</p>
+                                <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>Módulos Totales</p>
                             </div>
                         </div>
                     </div>
@@ -96,8 +103,8 @@ export function DashboardClient({ sections, user }: DashboardClientProps) {
                                 <Clock className="w-6 h-6 text-amber-600" />
                             </div>
                             <div>
-                                <p className={`text-2xl font-bold ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>-</p>
-                                <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>En Progreso</p>
+                                <p className={`text-2xl font-bold ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>{completedSectionIds.length}</p>
+                                <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>Completados</p>
                             </div>
                         </div>
                     </div>
@@ -107,7 +114,7 @@ export function DashboardClient({ sections, user }: DashboardClientProps) {
                                 <TrendingUp className="w-6 h-6 text-green-600" />
                             </div>
                             <div>
-                                <p className={`text-2xl font-bold ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>-</p>
+                                <p className={`text-2xl font-bold ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>{currentScore.toFixed(1)} / 100</p>
                                 <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>Puntaje Esperado</p>
                             </div>
                         </div>
@@ -117,41 +124,47 @@ export function DashboardClient({ sections, user }: DashboardClientProps) {
                 <div className="mb-12">
                     <h3 className={`text-2xl font-bold mb-6 flex items-center gap-2 ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>
                         <CheckCircle2 className="w-7 h-7 text-blue-600" />
-                        Secciones de Evaluación
+                        Módulos de Evaluación
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {sections.map((section, index) => (
-                            <Link
-                                key={section.id}
-                                href={`/dashboard/section/${section.id}`}
-                                className="group block"
-                            >
-                                <div className={`relative rounded-2xl shadow-sm border-2 p-6 hover:shadow-xl transition-all duration-300 h-full hover:scale-105 ${isDark ? 'bg-slate-800 border-slate-700 hover:border-blue-500' : 'bg-white border-slate-100 hover:border-blue-300'}`}>
-                                    <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-blue-500 to-purple-500 rounded-l-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
+                        {sections.map((section, index) => {
+                            const isCompleted = completedSectionIds.includes(section.id);
+                            return (
+                                <Link
+                                    key={section.id}
+                                    href={`/dashboard/section/${section.id}`}
+                                    className="group block"
+                                >
+                                    <div className={`relative rounded-2xl shadow-sm border-2 p-6 hover:shadow-xl transition-all duration-300 h-full hover:scale-105 ${isDark ? 'bg-slate-800 border-slate-700 hover:border-blue-500' : 'bg-white border-slate-100 hover:border-blue-300'} ${isCompleted ? 'border-green-500' : ''}`}>
+                                        <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-blue-500 to-purple-500 rounded-l-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
 
-                                    <div className="flex items-start justify-between mb-4">
-                                        <div className={`p-3 rounded-xl group-hover:from-blue-100 group-hover:to-blue-200 transition-colors ${isDark ? 'bg-gradient-to-br from-blue-900/50 to-blue-800/50' : 'bg-gradient-to-br from-blue-50 to-blue-100'}`}>
-                                            <FileText className="w-7 h-7 text-blue-600" />
+                                        <div className="flex items-start justify-between mb-4">
+                                            <div className={`p-3 rounded-xl group-hover:from-blue-100 group-hover:to-blue-200 transition-colors ${isDark ? 'bg-gradient-to-br from-blue-900/50 to-blue-800/50' : 'bg-gradient-to-br from-blue-50 to-blue-100'}`}>
+                                                <FileText className="w-7 h-7 text-blue-600" />
+                                            </div>
+                                            <div className="flex flex-col items-end gap-2">
+                                                <span className={`text-xs font-bold px-2 py-1 rounded-full ${isDark ? 'text-slate-500 bg-slate-700' : 'text-slate-400 bg-slate-100'}`}>#{index + 1}</span>
+                                                <div className={`w-3 h-3 rounded-full ${isCompleted ? 'bg-green-500' : 'bg-gray-300'}`} title={isCompleted ? 'Completado' : 'Pendiente'} />
+                                            </div>
                                         </div>
-                                        <span className={`text-xs font-bold px-2 py-1 rounded-full ${isDark ? 'text-slate-500 bg-slate-700' : 'text-slate-400 bg-slate-100'}`}>#{index + 1}</span>
+                                        <h4 className={`text-lg font-bold mb-2 group-hover:text-blue-600 transition-colors ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>
+                                            {section.title}
+                                        </h4>
+                                        <p className={`text-sm line-clamp-2 mb-4 leading-relaxed ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                                            {section.description}
+                                        </p>
+                                        <div className={`flex items-center justify-between pt-4 border-t ${isDark ? 'border-slate-700' : 'border-slate-100'}`}>
+                                            <div className={`flex items-center text-xs ${isDark ? 'text-slate-500' : 'text-slate-500'}`}>
+                                                <span className="font-medium">{section._count.questions} preguntas</span>
+                                            </div>
+                                            <div className="flex items-center text-xs font-bold text-blue-600">
+                                                <span>Peso {section.weight}%</span>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <h4 className={`text-lg font-bold mb-2 group-hover:text-blue-600 transition-colors ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>
-                                        {section.title}
-                                    </h4>
-                                    <p className={`text-sm line-clamp-2 mb-4 leading-relaxed ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
-                                        {section.description}
-                                    </p>
-                                    <div className={`flex items-center justify-between pt-4 border-t ${isDark ? 'border-slate-700' : 'border-slate-100'}`}>
-                                        <div className={`flex items-center text-xs ${isDark ? 'text-slate-500' : 'text-slate-500'}`}>
-                                            <span className="font-medium">{section._count.questions} preguntas</span>
-                                        </div>
-                                        <div className="flex items-center text-xs font-bold text-blue-600">
-                                            <span>Peso {section.weight}%</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </Link>
-                        ))}
+                                </Link>
+                            );
+                        })}
                     </div>
                 </div>
 
@@ -160,7 +173,7 @@ export function DashboardClient({ sections, user }: DashboardClientProps) {
                         <div className={`inline-block p-4 rounded-full mb-4 ${isDark ? 'bg-blue-900/50' : 'bg-blue-100'}`}>
                             <CheckCircle2 className="w-12 h-12 text-blue-600" />
                         </div>
-                        <h3 className={`text-2xl font-bold mb-3 ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>¿Completaste todas las secciones?</h3>
+                        <h3 className={`text-2xl font-bold mb-3 ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>¿Completaste todos los módulos?</h3>
                         <p className={`mb-6 leading-relaxed ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
                             Una vez que finalices la evaluación, se calculará automáticamente tu calificación final.
                             <strong className={isDark ? 'text-slate-100' : 'text-slate-900'}> No podrás hacer cambios después de finalizar.</strong>

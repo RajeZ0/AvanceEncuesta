@@ -25,6 +25,7 @@ export default function SectionPage({ params }: { params: Promise<{ id: string }
     const [answers, setAnswers] = useState<Record<string, string>>({});
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [isCompleted, setIsCompleted] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
@@ -34,6 +35,7 @@ export default function SectionPage({ params }: { params: Promise<{ id: string }
                 if (!res.ok) throw new Error('Error loading section');
                 const data = await res.json();
                 setSection(data);
+                setIsCompleted(data.isCompleted);
 
                 // Load existing answers
                 if (data.savedAnswers) {
@@ -49,26 +51,50 @@ export default function SectionPage({ params }: { params: Promise<{ id: string }
         fetchSection();
     }, [resolvedParams.id]);
 
+    // Auto-save logic
+    useEffect(() => {
+        if (Object.keys(answers).length === 0 || isCompleted) return;
+
+        const timeoutId = setTimeout(async () => {
+            setSaving(true);
+            try {
+                await fetch('/api/submit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        sectionId: resolvedParams.id,
+                        answers,
+                    }),
+                });
+            } catch (err) {
+                console.error('Auto-save failed', err);
+            } finally {
+                setSaving(false);
+            }
+        }, 1000); // 1 second debounce
+
+        return () => clearTimeout(timeoutId);
+    }, [answers, resolvedParams.id, isCompleted]);
+
     const handleAnswerChange = (questionId: string, value: string) => {
+        if (isCompleted) return;
         setAnswers((prev) => ({ ...prev, [questionId]: value }));
     };
 
-    const handleSubmit = async () => {
+    const handleFinalize = async () => {
+        if (!confirm('¿Está seguro de finalizar este módulo? No podrá modificar sus respuestas después.')) return;
+
         setSaving(true);
         try {
-            const res = await fetch('/api/submit', {
+            const res = await fetch(`/api/section/${resolvedParams.id}/finalize`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    sectionId: resolvedParams.id,
-                    answers,
-                }),
             });
 
             if (res.ok) {
+                alert('Módulo finalizado correctamente');
                 router.push('/dashboard');
             } else {
-                alert('Error al guardar las respuestas');
+                alert('Error al finalizar el módulo');
             }
         } catch (err) {
             console.error(err);
@@ -79,7 +105,7 @@ export default function SectionPage({ params }: { params: Promise<{ id: string }
     };
 
     if (loading) return <div className="min-h-screen flex items-center justify-center bg-gray-50 text-gray-500">Cargando preguntas...</div>;
-    if (!section) return <div className="min-h-screen flex items-center justify-center bg-gray-50 text-red-500">Sección no encontrada</div>;
+    if (!section) return <div className="min-h-screen flex items-center justify-center bg-gray-50 text-red-500">Módulo no encontrado</div>;
 
     return (
         <div className="min-h-screen bg-gray-50 pb-20">
@@ -90,14 +116,25 @@ export default function SectionPage({ params }: { params: Promise<{ id: string }
                         Volver
                     </Link>
                     <h1 className="text-lg font-bold text-gray-800 truncate ml-4">{section.title}</h1>
-                    <button
-                        onClick={handleSubmit}
-                        disabled={saving}
-                        className="flex items-center bg-slate-800 hover:bg-slate-900 text-white px-6 py-2 rounded-lg text-sm font-medium shadow-sm transition-all disabled:opacity-50"
-                    >
-                        {saving ? 'Guardando...' : 'Guardar Progreso'}
-                        <Save className="w-4 h-4 ml-2" />
-                    </button>
+                    <div className="flex items-center gap-4">
+                        {saving && <span className="text-sm text-gray-500 animate-pulse">Guardando...</span>}
+                        {!isCompleted && (
+                            <button
+                                onClick={handleFinalize}
+                                disabled={saving}
+                                className="flex items-center bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg text-sm font-medium shadow-sm transition-all disabled:opacity-50"
+                            >
+                                Finalizar Módulo
+                                <CheckCircle className="w-4 h-4 ml-2" />
+                            </button>
+                        )}
+                        {isCompleted && (
+                            <span className="flex items-center text-green-600 font-bold px-4 py-2 bg-green-50 rounded-lg border border-green-200">
+                                <CheckCircle className="w-4 h-4 mr-2" />
+                                Completado
+                            </span>
+                        )}
+                    </div>
                 </div>
             </header>
 
@@ -105,10 +142,15 @@ export default function SectionPage({ params }: { params: Promise<{ id: string }
                 <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-200">
                     <h2 className="text-2xl font-bold text-gray-900 mb-2">{section.title}</h2>
                     <p className="text-gray-600 text-lg leading-relaxed">{section.description}</p>
+                    {isCompleted && (
+                        <div className="mt-4 p-4 bg-yellow-50 text-yellow-800 rounded-lg border border-yellow-200 text-sm">
+                            Este módulo ha sido finalizado y no se pueden editar las respuestas.
+                        </div>
+                    )}
                 </div>
 
                 {section.questions.map((q, index) => (
-                    <div key={q.id} className="bg-white p-8 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200">
+                    <div key={q.id} className={`bg-white p-8 rounded-xl shadow-sm border border-gray-200 transition-shadow duration-200 ${isCompleted ? 'opacity-75 pointer-events-none' : 'hover:shadow-md'}`}>
                         <div className="flex items-start gap-4 mb-6">
                             <span className="flex-shrink-0 w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-sm font-bold border border-slate-200">
                                 {index + 1}
@@ -119,9 +161,9 @@ export default function SectionPage({ params }: { params: Promise<{ id: string }
                         <div className="ml-12">
                             {q.type === 'BOOLEAN' && (
                                 <div className="flex gap-4">
-                                    <label className={`flex-1 flex items-center justify-center px-6 py-3 rounded-lg border cursor-pointer transition-all duration-200 ${answers[q.id] === 'true'
+                                    <label className={`flex-1 flex items-center justify-center px-6 py-3 rounded-lg border transition-all duration-200 ${answers[q.id] === 'true'
                                         ? 'bg-slate-100 border-slate-400 text-slate-900 font-semibold shadow-sm'
-                                        : 'border-gray-200 hover:bg-gray-50 hover:border-gray-300 text-gray-600'}`}>
+                                        : 'border-gray-200 text-gray-600'}`}>
                                         <input
                                             type="radio"
                                             name={q.id}
@@ -129,12 +171,13 @@ export default function SectionPage({ params }: { params: Promise<{ id: string }
                                             checked={answers[q.id] === 'true'}
                                             onChange={(e) => handleAnswerChange(q.id, e.target.value)}
                                             className="hidden"
+                                            disabled={isCompleted}
                                         />
                                         <span className="text-base">Sí</span>
                                     </label>
-                                    <label className={`flex-1 flex items-center justify-center px-6 py-3 rounded-lg border cursor-pointer transition-all duration-200 ${answers[q.id] === 'false'
+                                    <label className={`flex-1 flex items-center justify-center px-6 py-3 rounded-lg border transition-all duration-200 ${answers[q.id] === 'false'
                                         ? 'bg-slate-100 border-slate-400 text-slate-900 font-semibold shadow-sm'
-                                        : 'border-gray-200 hover:bg-gray-50 hover:border-gray-300 text-gray-600'}`}>
+                                        : 'border-gray-200 text-gray-600'}`}>
                                         <input
                                             type="radio"
                                             name={q.id}
@@ -142,6 +185,7 @@ export default function SectionPage({ params }: { params: Promise<{ id: string }
                                             checked={answers[q.id] === 'false'}
                                             onChange={(e) => handleAnswerChange(q.id, e.target.value)}
                                             className="hidden"
+                                            disabled={isCompleted}
                                         />
                                         <span className="text-base">No</span>
                                     </label>
@@ -156,9 +200,9 @@ export default function SectionPage({ params }: { params: Promise<{ id: string }
                                     </div>
                                     <div className="flex justify-between gap-2 sm:gap-4">
                                         {[1, 2, 3, 4, 5].map((val) => (
-                                            <label key={val} className={`flex-1 flex flex-col items-center justify-center py-3 rounded-lg border cursor-pointer transition-all duration-200 ${answers[q.id] === String(val)
+                                            <label key={val} className={`flex-1 flex flex-col items-center justify-center py-3 rounded-lg border transition-all duration-200 ${answers[q.id] === String(val)
                                                 ? 'bg-slate-100 border-slate-400 text-slate-900 font-bold shadow-sm'
-                                                : 'border-gray-200 hover:bg-gray-50 hover:border-gray-300 text-gray-600'}`}>
+                                                : 'border-gray-200 text-gray-600'}`}>
                                                 <input
                                                     type="radio"
                                                     name={q.id}
@@ -166,6 +210,7 @@ export default function SectionPage({ params }: { params: Promise<{ id: string }
                                                     checked={answers[q.id] === String(val)}
                                                     onChange={(e) => handleAnswerChange(q.id, e.target.value)}
                                                     className="hidden"
+                                                    disabled={isCompleted}
                                                 />
                                                 <span className="text-lg">{val}</span>
                                             </label>
@@ -178,8 +223,9 @@ export default function SectionPage({ params }: { params: Promise<{ id: string }
                                 <textarea
                                     value={answers[q.id] || ''}
                                     onChange={(e) => handleAnswerChange(q.id, e.target.value)}
-                                    className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-200 focus:border-slate-400 outline-none min-h-[120px] text-gray-700 text-base transition-all bg-gray-50 focus:bg-white"
+                                    className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-200 focus:border-slate-400 outline-none min-h-[120px] text-gray-700 text-base transition-all bg-gray-50 focus:bg-white disabled:bg-gray-100 disabled:text-gray-500"
                                     placeholder="Escriba su respuesta detallada aquí..."
+                                    disabled={isCompleted}
                                 />
                             )}
                         </div>

@@ -12,19 +12,24 @@ Esta aplicación permite:
 - Interfaz con tema claro/oscuro
 - Progressive Web App (PWA) para instalación en dispositivos
 
-##  Tecnologías Utilizadas
+## Tecnologías Utilizadas
 
-### Frontend
-- **Next.js 15** - Framework de React con App Router
-- **React 19** - Biblioteca de interfaz de usuario
-- **TypeScript** - Tipado estático
-- **Tailwind CSS** - Framework de estilos
-- **Lucide React** - Iconos
+Para este proyecto, he seleccionado un conjunto de tecnologías modernas y robustas que garantizan tanto un excelente rendimiento como una gran experiencia de desarrollo. Aquí te explico qué he usado y por qué:
 
-### Backend
-- **Prisma** - ORM para base de datos
-- **SQLite** - Base de datos (desarrollo)
-- **Next.js API Routes** - Endpoints del servidor
+### Frontend (Interfaz de Usuario)
+
+*   **Next.js 15:** He elegido este framework de React porque es el estándar actual para construir aplicaciones web rápidas y escalables. Me permite manejar el enrutamiento y optimizar el rendimiento desde el servidor, facilitando la creación de una aplicación robusta.
+*   **React 19:** Es la biblioteca base que utilizo para construir la interfaz. Me permite crear componentes reutilizables (como las tarjetas de evaluación o los botones) y manejar el estado de la aplicación de forma fluida y reactiva.
+*   **TypeScript:** Lo utilizo para añadir tipado estático a JavaScript. Esto es fundamental para evitar errores comunes durante el desarrollo y hace que el código sea mucho más seguro, legible y fácil de mantener.
+*   **Tailwind CSS:** Para el diseño visual, he optado por Tailwind. Me permite construir interfaces modernas, bonitas y totalmente responsivas de manera muy rápida, utilizando clases utilitarias directamente en el código.
+*   **Lucide React:** Es la librería de iconos que he integrado para dar una apariencia limpia y profesional a la interfaz gráfica.
+
+### Backend (Servidor y Datos)
+
+*   **Node.js:** Es el entorno de ejecución que potencia todo el servidor. Me permite utilizar JavaScript en el backend, unificando el lenguaje de programación en todo el proyecto.
+*   **Prisma ORM:** Esta herramienta es clave para la comunicación con la base de datos. Me permite interactuar con los datos usando objetos de TypeScript en lugar de escribir consultas SQL complejas, lo que acelera el desarrollo y previene errores.
+*   **SQLite:** He seleccionado SQLite como base de datos por su simplicidad y eficiencia. Al funcionar con un archivo local, elimina la necesidad de configurar servidores de base de datos complejos, facilitando el despliegue y la portabilidad del proyecto.
+*   **Next.js API Routes:** Aprovecho la arquitectura de Next.js para construir la API del backend dentro del mismo proyecto. Aquí reside la lógica segura para autenticar usuarios, procesar las evaluaciones y calcular los puntajes.
 
 
 

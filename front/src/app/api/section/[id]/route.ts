@@ -6,6 +6,7 @@ const prisma = new PrismaClient();
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
     const resolvedParams = await params;
+    const sectionId = resolvedParams.id;
     const cookieStore = await cookies();
     const userId = cookieStore.get('userId')?.value;
 
@@ -14,7 +15,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     }
 
     const section = await prisma.section.findUnique({
-        where: { id: resolvedParams.id },
+        where: { id: sectionId },
         include: {
             questions: {
                 orderBy: { order: 'asc' },
@@ -28,31 +29,30 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 
     // Fetch user's active submission and answers for this section
     const submission = await prisma.submission.findFirst({
-        where: {
-            userId,
-            status: 'IN_PROGRESS'
-        },
-        include: {
-            answers: {
-                where: {
-                    questionId: {
-                        in: section.questions.map(q => q.id)
-                    }
-                }
-            }
-        }
+        where: { userId },
+        include: { answers: true },
     });
 
     // Transform answers into a map for easier frontend consumption
-    const answersMap: Record<string, string> = {};
+    const savedAnswers: Record<string, string> = {};
+    let isCompleted = false;
+
     if (submission) {
+        // Filter answers to only include those relevant to the current section's questions
+        const sectionQuestionIds = section.questions.map(q => q.id);
         submission.answers.forEach(ans => {
-            answersMap[ans.questionId] = ans.value;
+            if (sectionQuestionIds.includes(ans.questionId)) {
+                savedAnswers[ans.questionId] = ans.value;
+            }
         });
+
+        const completedIds = submission.completedSectionIds ? JSON.parse(submission.completedSectionIds) : [];
+        isCompleted = completedIds.includes(sectionId);
     }
 
     return NextResponse.json({
         ...section,
-        savedAnswers: answersMap
+        savedAnswers,
+        isCompleted
     });
 }
