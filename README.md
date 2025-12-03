@@ -62,20 +62,17 @@ Avance Proyecto/
 ##  Instalación y Despliegue en Localhost
 
 
-### 🚀 Inicio Rápido (4 pasos)
+### 🚀 Inicio Rápido (3 pasos)
 
 ```bash
 # 1. Clonar el proyecto
 git clone https://github.com/RajeZ0/AvanceEncuesta
 cd AvanceEncuesta/front
 
-# 2. Instalar dependencias
+# 2. Instalar dependencias (Prisma se configura automáticamente)
 npm install
 
-# 3. Generar cliente de Prisma
-npx prisma generate
-
-# 4. Iniciar el servidor
+# 3. Iniciar el servidor
 npm run dev
 ```
 
@@ -130,18 +127,10 @@ npm install
 
 Este comando descargará e instalará todas las bibliotecas necesarias listadas en `package.json`. Puede tomar algunos minutos.
 
-### Paso 4: Generar Cliente de Prisma
-
-**Este paso es obligatorio.** Genera el cliente de Prisma que permite la comunicación con la base de datos:
-
-```bash
-npx prisma generate
-```
-
 > [!NOTE]
-> **No necesitas ejecutar migraciones ni seed.** La base de datos SQLite con datos de ejemplo ya está incluida en la carpeta `back/` del repositorio.
+> **El cliente de Prisma se genera automáticamente** durante `npm install` gracias al script `postinstall`. No necesitas ejecutar comandos adicionales.
 
-### Paso 5: Iniciar el Servidor de Desarrollo
+### Paso 4: Iniciar el Servidor de Desarrollo
 
 Ejecuta el servidor de desarrollo:
 
@@ -157,7 +146,7 @@ Verás un mensaje similar a:
 - Ready in X.Xs
 ```
 
-### Paso 6: Acceder a la Aplicación
+### Paso 5: Acceder a la Aplicación
 
 Abre tu navegador web y visita:
 
