@@ -61,6 +61,33 @@ Avance Proyecto/
 
 ##  Instalación y Despliegue en Localhost
 
+> [!IMPORTANT]
+> **¡Este proyecto está listo para usar!** La base de datos con datos de ejemplo ya está incluida en el repositorio. Solo necesitas instalar dependencias y ejecutar.
+
+### 🚀 Inicio Rápido (3 pasos)
+
+```bash
+# 1. Clonar el proyecto
+git clone https://github.com/RajeZ0/AvanceEncuesta
+cd AvanceEncuesta/front
+
+# 2. Instalar dependencias
+npm install
+
+# 3. Iniciar el servidor
+npm run dev
+```
+
+**¡Listo!** Abre tu navegador en `http://localhost:3000`
+
+**Credenciales de prueba:**
+- Usuario: `admin`
+- Contraseña: `adminpassword`
+
+---
+
+### 📋 Instrucciones Detalladas
+
 ### Prerrequisitos
 
 Antes de comenzar, asegúrate de tener instalado:
@@ -102,49 +129,10 @@ npm install
 
 Este comando descargará e instalará todas las bibliotecas necesarias listadas en `package.json`. Puede tomar algunos minutos.
 
-### Paso 4: Configurar Variables de Entorno
+> [!NOTE]
+> **No necesitas configurar la base de datos ni ejecutar el seed.** La base de datos SQLite con datos de ejemplo ya está incluida en la carpeta `back/` del repositorio.
 
-El archivo `.env` ya debe estar configurado con:
-
-```env
-DATABASE_URL="file:../back/dev.db"
-```
-
-Esta ruta apunta a la base de datos SQLite en la carpeta `back`.
-
-### Paso 5: Generar el Cliente de Prisma
-
-Genera el cliente de Prisma que permite interactuar con la base de datos:
-
-```bash
-npx prisma generate
-```
-
-### Paso 6: Ejecutar Migraciones (Primera vez)
-
-Si es la primera vez que ejecutas el proyecto, aplica las migraciones de la base de datos:
-
-```bash
-npx prisma migrate deploy
-```
-
-### Paso 7: Poblar la Base de Datos (Opcional)
-
-Para crear datos de ejemplo (secciones y usuario admin):
-
-1. Inicia el servidor de desarrollo (ver Paso 8)
-2. Abre tu navegador y visita:
-   ```
-   http://localhost:3000/api/seed
-   ```
-
-Esto creará:
-- Secciones de ejemplo con preguntas
-- Usuario administrador:
-  - **Usuario:** `admin`
-  - **Contraseña:** `adminpassword`
-
-### Paso 8: Iniciar el Servidor de Desarrollo
+### Paso 4: Iniciar el Servidor de Desarrollo
 
 Ejecuta el servidor de desarrollo:
 
@@ -160,7 +148,7 @@ Verás un mensaje similar a:
 - Ready in X.Xs
 ```
 
-### Paso 9: Acceder a la Aplicación
+### Paso 5: Acceder a la Aplicación
 
 Abre tu navegador web y visita:
 
@@ -170,15 +158,36 @@ http://localhost:3000
 
 La aplicación te redirigirá automáticamente a la página de login.
 
+---
+
+### 🔧 Comandos Opcionales Avanzados
+
+Si necesitas regenerar el cliente de Prisma o hacer cambios a la base de datos:
+
+```bash
+# Regenerar cliente de Prisma (solo si modificas el schema)
+npx prisma generate
+
+# Aplicar nuevas migraciones (solo si creas nuevas migraciones)
+npx prisma migrate deploy
+
+# Abrir Prisma Studio para ver/editar datos
+npx prisma studio
+```
+
+
 ##  Credenciales de Acceso
 
-### Usuario Administrador (después del seed)
+> [!NOTE]
+> La base de datos ya incluye un usuario administrador pre-configurado.
+
+### Usuario Administrador
 - **Usuario:** `admin`
 - **Contraseña:** `adminpassword`
 
 ### Crear Nuevos Usuarios
 
-Los nuevos usuarios deben crearse directamente en la base de datos. Puedes usar Prisma Studio:
+Los nuevos usuarios se pueden crear desde el panel de administración o usando Prisma Studio:
 
 ```bash
 npx prisma studio
