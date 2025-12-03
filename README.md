@@ -61,10 +61,8 @@ Avance Proyecto/
 
 ##  Instalación y Despliegue en Localhost
 
-> [!IMPORTANT]
-> **¡Este proyecto está listo para usar!** La base de datos con datos de ejemplo ya está incluida en el repositorio. Solo necesitas instalar dependencias y ejecutar.
 
-### 🚀 Inicio Rápido (3 pasos)
+### 🚀 Inicio Rápido (4 pasos)
 
 ```bash
 # 1. Clonar el proyecto
@@ -74,7 +72,10 @@ cd AvanceEncuesta/front
 # 2. Instalar dependencias
 npm install
 
-# 3. Iniciar el servidor
+# 3. Generar cliente de Prisma
+npx prisma generate
+
+# 4. Iniciar el servidor
 npm run dev
 ```
 
@@ -129,10 +130,18 @@ npm install
 
 Este comando descargará e instalará todas las bibliotecas necesarias listadas en `package.json`. Puede tomar algunos minutos.
 
-> [!NOTE]
-> **No necesitas configurar la base de datos ni ejecutar el seed.** La base de datos SQLite con datos de ejemplo ya está incluida en la carpeta `back/` del repositorio.
+### Paso 4: Generar Cliente de Prisma
 
-### Paso 4: Iniciar el Servidor de Desarrollo
+**Este paso es obligatorio.** Genera el cliente de Prisma que permite la comunicación con la base de datos:
+
+```bash
+npx prisma generate
+```
+
+> [!NOTE]
+> **No necesitas ejecutar migraciones ni seed.** La base de datos SQLite con datos de ejemplo ya está incluida en la carpeta `back/` del repositorio.
+
+### Paso 5: Iniciar el Servidor de Desarrollo
 
 Ejecuta el servidor de desarrollo:
 
@@ -148,7 +157,7 @@ Verás un mensaje similar a:
 - Ready in X.Xs
 ```
 
-### Paso 5: Acceder a la Aplicación
+### Paso 6: Acceder a la Aplicación
 
 Abre tu navegador web y visita:
 
