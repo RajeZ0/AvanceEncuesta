@@ -5,7 +5,7 @@ export function middleware(request: NextRequest) {
     const userId = request.cookies.get('userId')?.value;
     const { pathname } = request.nextUrl;
 
-    if (pathname.startsWith('/dashboard')) {
+    if (pathname.startsWith('/dashboard/section')) {
         if (!userId) {
             return NextResponse.redirect(new URL('/login', request.url));
         }

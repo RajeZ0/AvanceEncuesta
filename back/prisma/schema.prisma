@@ -12,7 +12,14 @@ model User {
   id        String   @id @default(uuid())
   username  String   @unique
   password  String
+  name      String?
+  email     String?  @unique
+  phone     String?
+  state     String?
+  municipality String?
   role      String   @default("USER")
+  resetToken String?
+  resetTokenExpiry DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

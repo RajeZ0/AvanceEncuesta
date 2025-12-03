@@ -4,6 +4,7 @@ import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { Save, ArrowLeft, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
+import { QuestionNavigation } from '@/components/QuestionNavigation';
 
 interface Question {
     id: string;
@@ -138,99 +139,113 @@ export default function SectionPage({ params }: { params: Promise<{ id: string }
                 </div>
             </header>
 
-            <main className="max-w-4xl mx-auto px-4 py-8 space-y-6">
-                <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-200">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-2">{section.title}</h2>
-                    <p className="text-gray-600 text-lg leading-relaxed">{section.description}</p>
-                    {isCompleted && (
-                        <div className="mt-4 p-4 bg-yellow-50 text-yellow-800 rounded-lg border border-yellow-200 text-sm">
-                            Este módulo ha sido finalizado y no se pueden editar las respuestas.
-                        </div>
-                    )}
-                </div>
-
-                {section.questions.map((q, index) => (
-                    <div key={q.id} className={`bg-white p-8 rounded-xl shadow-sm border border-gray-200 transition-shadow duration-200 ${isCompleted ? 'opacity-75 pointer-events-none' : 'hover:shadow-md'}`}>
-                        <div className="flex items-start gap-4 mb-6">
-                            <span className="flex-shrink-0 w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-sm font-bold border border-slate-200">
-                                {index + 1}
-                            </span>
-                            <h3 className="text-gray-900 font-medium text-lg leading-tight">{q.text}</h3>
-                        </div>
-
-                        <div className="ml-12">
-                            {q.type === 'BOOLEAN' && (
-                                <div className="flex gap-4">
-                                    <label className={`flex-1 flex items-center justify-center px-6 py-3 rounded-lg border transition-all duration-200 ${answers[q.id] === 'true'
-                                        ? 'bg-slate-100 border-slate-400 text-slate-900 font-semibold shadow-sm'
-                                        : 'border-gray-200 text-gray-600'}`}>
-                                        <input
-                                            type="radio"
-                                            name={q.id}
-                                            value="true"
-                                            checked={answers[q.id] === 'true'}
-                                            onChange={(e) => handleAnswerChange(q.id, e.target.value)}
-                                            className="hidden"
-                                            disabled={isCompleted}
-                                        />
-                                        <span className="text-base">Sí</span>
-                                    </label>
-                                    <label className={`flex-1 flex items-center justify-center px-6 py-3 rounded-lg border transition-all duration-200 ${answers[q.id] === 'false'
-                                        ? 'bg-slate-100 border-slate-400 text-slate-900 font-semibold shadow-sm'
-                                        : 'border-gray-200 text-gray-600'}`}>
-                                        <input
-                                            type="radio"
-                                            name={q.id}
-                                            value="false"
-                                            checked={answers[q.id] === 'false'}
-                                            onChange={(e) => handleAnswerChange(q.id, e.target.value)}
-                                            className="hidden"
-                                            disabled={isCompleted}
-                                        />
-                                        <span className="text-base">No</span>
-                                    </label>
+            <main className="max-w-7xl mx-auto px-4 py-8">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    {/* Main Content - Questions */}
+                    <div className="lg:col-span-8 space-y-6">
+                        <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-200">
+                            <h2 className="text-2xl font-bold text-gray-900 mb-2">{section.title}</h2>
+                            <p className="text-gray-600 text-lg leading-relaxed">{section.description}</p>
+                            {isCompleted && (
+                                <div className="mt-4 p-4 bg-yellow-50 text-yellow-800 rounded-lg border border-yellow-200 text-sm">
+                                    Este módulo ha sido finalizado y no se pueden editar las respuestas.
                                 </div>
                             )}
+                        </div>
 
-                            {q.type === 'SCALE' && (
-                                <div className="space-y-3">
-                                    <div className="flex justify-between text-sm font-medium text-gray-500 px-2">
-                                        <span>Deficiente</span>
-                                        <span>Excelente</span>
-                                    </div>
-                                    <div className="flex justify-between gap-2 sm:gap-4">
-                                        {[1, 2, 3, 4, 5].map((val) => (
-                                            <label key={val} className={`flex-1 flex flex-col items-center justify-center py-3 rounded-lg border transition-all duration-200 ${answers[q.id] === String(val)
-                                                ? 'bg-slate-100 border-slate-400 text-slate-900 font-bold shadow-sm'
+                        {section.questions.map((q, index) => (
+                            <div
+                                key={q.id}
+                                id={q.id}
+                                className={`bg-white p-8 rounded-xl shadow-sm border border-gray-200 transition-shadow duration-200 scroll-mt-28 ${isCompleted ? 'opacity-75 pointer-events-none' : 'hover:shadow-md'}`}
+                            >
+                                <div className="flex items-start gap-4 mb-6">
+                                    <span className="flex-shrink-0 w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-sm font-bold border border-slate-200">
+                                        {index + 1}
+                                    </span>
+                                    <h3 className="text-gray-900 font-medium text-lg leading-tight">{q.text}</h3>
+                                </div>
+
+                                <div className="ml-12">
+                                    {q.type === 'BOOLEAN' && (
+                                        <div className="flex gap-4">
+                                            <label className={`flex-1 flex items-center justify-center px-6 py-3 rounded-lg border transition-all duration-200 ${answers[q.id] === 'true'
+                                                ? 'bg-slate-100 border-slate-400 text-slate-900 font-semibold shadow-sm'
                                                 : 'border-gray-200 text-gray-600'}`}>
                                                 <input
                                                     type="radio"
                                                     name={q.id}
-                                                    value={val}
-                                                    checked={answers[q.id] === String(val)}
+                                                    value="true"
+                                                    checked={answers[q.id] === 'true'}
                                                     onChange={(e) => handleAnswerChange(q.id, e.target.value)}
                                                     className="hidden"
                                                     disabled={isCompleted}
                                                 />
-                                                <span className="text-lg">{val}</span>
+                                                <span className="text-base">Sí</span>
                                             </label>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
+                                            <label className={`flex-1 flex items-center justify-center px-6 py-3 rounded-lg border transition-all duration-200 ${answers[q.id] === 'false'
+                                                ? 'bg-slate-100 border-slate-400 text-slate-900 font-semibold shadow-sm'
+                                                : 'border-gray-200 text-gray-600'}`}>
+                                                <input
+                                                    type="radio"
+                                                    name={q.id}
+                                                    value="false"
+                                                    checked={answers[q.id] === 'false'}
+                                                    onChange={(e) => handleAnswerChange(q.id, e.target.value)}
+                                                    className="hidden"
+                                                    disabled={isCompleted}
+                                                />
+                                                <span className="text-base">No</span>
+                                            </label>
+                                        </div>
+                                    )}
 
-                            {q.type === 'TEXT' && (
-                                <textarea
-                                    value={answers[q.id] || ''}
-                                    onChange={(e) => handleAnswerChange(q.id, e.target.value)}
-                                    className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-200 focus:border-slate-400 outline-none min-h-[120px] text-gray-700 text-base transition-all bg-gray-50 focus:bg-white disabled:bg-gray-100 disabled:text-gray-500"
-                                    placeholder="Escriba su respuesta detallada aquí..."
-                                    disabled={isCompleted}
-                                />
-                            )}
-                        </div>
+                                    {q.type === 'SCALE' && (
+                                        <div className="space-y-3">
+                                            <div className="flex justify-between text-sm font-medium text-gray-500 px-2">
+                                                <span>Deficiente</span>
+                                                <span>Excelente</span>
+                                            </div>
+                                            <div className="flex justify-between gap-2 sm:gap-4">
+                                                {[1, 2, 3, 4, 5].map((val) => (
+                                                    <label key={val} className={`flex-1 flex flex-col items-center justify-center py-3 rounded-lg border transition-all duration-200 ${answers[q.id] === String(val)
+                                                        ? 'bg-slate-100 border-slate-400 text-slate-900 font-bold shadow-sm'
+                                                        : 'border-gray-200 text-gray-600'}`}>
+                                                        <input
+                                                            type="radio"
+                                                            name={q.id}
+                                                            value={val}
+                                                            checked={answers[q.id] === String(val)}
+                                                            onChange={(e) => handleAnswerChange(q.id, e.target.value)}
+                                                            className="hidden"
+                                                            disabled={isCompleted}
+                                                        />
+                                                        <span className="text-lg">{val}</span>
+                                                    </label>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {q.type === 'TEXT' && (
+                                        <textarea
+                                            value={answers[q.id] || ''}
+                                            onChange={(e) => handleAnswerChange(q.id, e.target.value)}
+                                            className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-200 focus:border-slate-400 outline-none min-h-[120px] text-gray-700 text-base transition-all bg-gray-50 focus:bg-white disabled:bg-gray-100 disabled:text-gray-500"
+                                            placeholder="Escriba su respuesta detallada aquí..."
+                                            disabled={isCompleted}
+                                        />
+                                    )}
+                                </div>
+                            </div>
+                        ))}
                     </div>
-                ))}
+
+                    {/* Sidebar - Navigation */}
+                    <div className="lg:col-span-4">
+                        <QuestionNavigation questions={section.questions} answers={answers} />
+                    </div>
+                </div>
             </main>
         </div>
     );

@@ -29,7 +29,9 @@ export default async function Dashboard() {
     const cookieStore = await cookies();
     const userId = cookieStore.get('userId')?.value;
 
-    if (!userId) redirect('/login');
+    if (!userId) {
+        return <DashboardClient sections={sections} user={null} completedSectionIds={[]} currentScore={0} />;
+    }
 
     const user = await prisma.user.findUnique({ where: { id: userId } });
 
