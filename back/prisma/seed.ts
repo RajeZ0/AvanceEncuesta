@@ -62,10 +62,11 @@ async function main() {
 
     // Crear usuario admin de prueba
     await prisma.user.upsert({
-        where: { username: 'admin' },
+        where: { email: 'admin@meplansus.com' },
         update: {},
         create: {
             username: 'admin',
+            email: 'admin@meplansus.com',
             password: 'admin123', // En producción esto debe ser hasheado
             role: 'ADMIN',
         },
