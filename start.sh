@@ -3,7 +3,8 @@ set -e
 
 echo "Synchronizing database schema..."
 # DATABASE_URL is provided by Render environment
-npx prisma db push --schema=/app/back/prisma/schema.prisma --force-reset
+echo "Running: /app/node_modules/.bin/prisma db push --schema=/app/back/prisma/schema.prisma --force-reset"
+/app/node_modules/.bin/prisma db push --schema=/app/back/prisma/schema.prisma --force-reset
 
 echo "Seeding database..."
 npx ts-node /app/back/prisma/seed.ts
