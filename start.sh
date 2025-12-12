@@ -8,7 +8,7 @@ echo "Running: /app/node_modules/.bin/prisma db push --schema=/app/back/prisma/s
 
 echo "Seeding database..."
 # Explicitly use the local ts-node binary and transpile-only to avoid strict type checks and module issues
-/app/node_modules/.bin/ts-node --transpile-only /app/back/prisma/seed.ts
+/app/node_modules/.bin/ts-node --esm --transpile-only /app/back/prisma/seed.ts
 
 # 2. Start Application
 echo "Starting Frontend..."
