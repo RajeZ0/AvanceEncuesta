@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 // import { getDbPath } from '@/lib/dbPath';
 import { cookies } from 'next/headers';
 import crypto from 'crypto';
+import { prisma } from '@/lib/prisma';
 
 export async function POST(request: Request) {
     try {
@@ -15,7 +16,6 @@ export async function POST(request: Request) {
         }
 
         // Use Prisma instead of better-sqlite3 for Postgres compatibility
-        import { prisma } from '@/lib/prisma';
 
         // Check user credentials
         const user = await prisma.user.findUnique({
