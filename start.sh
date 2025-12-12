@@ -3,7 +3,7 @@ set -e
 
 echo "Synchronizing database schema..."
 # DATABASE_URL is provided by Render environment
-npx prisma db push --schema=/app/back/prisma/schema.prisma
+npx prisma db push --schema=/app/back/prisma/schema.prisma --accept-data-loss
 
 echo "Seeding database..."
 npx ts-node /app/back/prisma/seed.ts
