@@ -1,0 +1,32 @@
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      # Use the path inside the container
+      - DATABASE_FILE_PATH=/app/back/dev.db
+      - DATABASE_URL=file:/app/back/dev.db
+      # Next.js production tweaks
+      - NODE_ENV=production
+    volumes:
+      # Persist the database file. 
+      # We mount the specific file if it exists, or the directory.
+      # Mounting directory is safer to avoid file-is-directory creation issues if file is missing.
+      - ./back:/app/back
+      # Prevent node_modules from being overwritten by the volume mount
+      - /app/back/node_modules
+    restart: always
+
+  studio:
+    build: .
+    ports:
+      - "5555:5555"
+    environment:
+      - DATABASE_URL=file:/app/back/dev.db
+    volumes:
+      - ./back:/app/back
+      # We need to run this command from where schema is or pass schema path
+      # Dockerfile puts schema at front/prisma/schema.prisma (standard) OR back/prisma/schema.prisma (original)
+      # Let's target the one properly configured in the image
+    entrypoint: [ "sh", "-c", "cd front && npx prisma studio --schema=prisma/schema.prisma --port 5555 --browser none --hostname 0.0.0.0" ]

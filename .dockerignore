@@ -1,0 +1,17 @@
+node_modules
+front/node_modules
+back/node_modules
+.next
+front/.next
+.git
+.gitignore
+Dockerfile
+docker-compose.yml
+README.md
+*.md
+*.log
+# Exclude local database files to prevent locking/copying issues
+*.db
+*.db-journal
+back/*.db
+back/*.db-journal

@@ -1,0 +1,19 @@
+{
+  "scripts": {
+    "dev": "npm run dev --prefix front",
+    "build": "npm run build --prefix front",
+    "start": "npm run start --prefix front",
+    "db:push": "cd back && npx prisma db push",
+    "db:studio": "cd back && npx prisma studio",
+    "dev:all": "npx concurrently \"npm run dev\" \"npm run db:studio\""
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.2",
+    "prisma": "^5.22.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.22.0"
+  }
+}
