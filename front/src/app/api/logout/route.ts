@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { getDbPath } from '@/lib/dbPath';
 import { cookies } from 'next/headers';
+import { prisma } from '@/lib/prisma';
 
 export async function POST(request: Request) {
     try {
@@ -9,10 +9,10 @@ export async function POST(request: Request) {
 
         // Clear session token from database
         if (userId) {
-            const Database = require('better-sqlite3');
-            const db = new Database(getDbPath());
-            db.prepare('UPDATE User SET sessionToken = NULL WHERE id = ?').run(userId);
-            db.close();
+            await prisma.user.update({
+                where: { id: userId },
+                data: { sessionToken: null },
+            });
         }
 
         // Clear cookies
