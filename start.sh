@@ -14,6 +14,11 @@ echo "Synchronizing database schema..."
 export DATABASE_URL="file:$DB_FILE"
 npx prisma db push --schema=/app/back/prisma/schema.prisma
 
+echo "Seeding database..."
+# Run seed script using ts-node from root dependencies
+export DATABASE_URL="file:$DB_FILE"
+npx ts-node /app/back/prisma/seed.ts
+
 # 2. Start Application
 echo "Starting Frontend..."
 cd /app/front

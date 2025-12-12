@@ -66,7 +66,7 @@ async function main() {
         update: {},
         create: {
             username: 'admin',
-            password: 'adminpassword', // En producción esto debe ser hasheado
+            password: 'admin123', // En producción esto debe ser hasheado
             role: 'ADMIN',
         },
     });
