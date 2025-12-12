@@ -7,8 +7,12 @@ echo "Running: /app/node_modules/.bin/prisma db push --schema=/app/back/prisma/s
 /app/node_modules/.bin/prisma db push --schema=/app/back/prisma/schema.prisma --force-reset
 
 echo "Seeding database..."
-# Explicitly use the local ts-node binary with correct ESM options to fix TS5109
-/app/node_modules/.bin/ts-node --esm --transpile-only --compiler-options '{"module":"NodeNext","moduleResolution":"NodeNext"}' /app/back/prisma/seed.ts
+# Compile seed script to CommonJS to avoid ts-node/ESM issues
+echo "Compiling seed script..."
+npx tsc /app/back/prisma/seed.ts --outDir /app/back/prisma --module commonjs --target es2020 --skipLibCheck --moduleResolution node --esModuleInterop
+
+echo "Running seed script..."
+node /app/back/prisma/seed.js
 
 # 2. Start Application
 echo "Starting Frontend..."
