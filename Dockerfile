@@ -24,8 +24,6 @@ COPY front ./front
 # 6. Generate Prisma Client
 # We use the schema from back/ so the relative 'output' path (../../front/node_modules)
 # resolves correctly to /app/front/node_modules
-ENV DATABASE_URL="file:/tmp/dummy.db"
-ENV DATABASE_FILE_PATH="/tmp/dummy.db"
 
 # Push schema to dummy DB for build-time static generation
 # RUN npx prisma db push --schema=back/prisma/schema.prisma

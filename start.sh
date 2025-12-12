@@ -1,22 +1,11 @@
 #!/bin/sh
 set -e
 
-# Define path to DB
-DB_FILE="/app/back/dev.db"
-
-echo "Using Database File at: $DB_FILE"
-
-# Ensure the back directory exists for the DB file
-mkdir -p /app/back
-
-# 1. Database Setup
 echo "Synchronizing database schema..."
-export DATABASE_URL="file:$DB_FILE"
+# DATABASE_URL is provided by Render environment
 npx prisma db push --schema=/app/back/prisma/schema.prisma
 
 echo "Seeding database..."
-# Run seed script using ts-node from root dependencies
-export DATABASE_URL="file:$DB_FILE"
 npx ts-node /app/back/prisma/seed.ts
 
 # 2. Start Application
