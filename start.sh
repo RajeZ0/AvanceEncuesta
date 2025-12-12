@@ -7,6 +7,10 @@ echo "Running: /app/node_modules/.bin/prisma db push --schema=/app/back/prisma/s
 /app/node_modules/.bin/prisma db push --schema=/app/back/prisma/schema.prisma --force-reset
 
 echo "Seeding database..."
+# Explicitly generate client to ensure both generators run
+echo "Generating Prisma Clients..."
+/app/node_modules/.bin/prisma generate --schema=/app/back/prisma/schema.prisma
+
 # Compile seed script to CommonJS to avoid ts-node/ESM issues
 echo "Compiling seed script..."
 npx tsc /app/back/prisma/seed.ts --outDir /app/back/prisma --module commonjs --target es2020 --skipLibCheck --moduleResolution node --esModuleInterop
