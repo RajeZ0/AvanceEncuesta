@@ -7,8 +7,8 @@ echo "Running: /app/node_modules/.bin/prisma db push --schema=/app/back/prisma/s
 /app/node_modules/.bin/prisma db push --schema=/app/back/prisma/schema.prisma --force-reset
 
 echo "Seeding database..."
-# Explicitly use the local ts-node binary and transpile-only to avoid strict type checks and module issues
-/app/node_modules/.bin/ts-node --esm --transpile-only /app/back/prisma/seed.ts
+# Explicitly use the local ts-node binary with correct ESM options to fix TS5109
+/app/node_modules/.bin/ts-node --esm --transpile-only --compiler-options '{"module":"NodeNext","moduleResolution":"NodeNext"}' /app/back/prisma/seed.ts
 
 # 2. Start Application
 echo "Starting Frontend..."
