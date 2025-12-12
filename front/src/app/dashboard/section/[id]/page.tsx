@@ -33,6 +33,10 @@ export default function SectionPage({ params }: { params: Promise<{ id: string }
         const fetchSection = async () => {
             try {
                 const res = await fetch(`/api/section/${resolvedParams.id}`);
+                if (res.status === 401) {
+                    router.push('/login?session=expired');
+                    return;
+                }
                 if (!res.ok) throw new Error('Error loading section');
                 const data = await res.json();
                 setSection(data);
@@ -42,8 +46,10 @@ export default function SectionPage({ params }: { params: Promise<{ id: string }
                 if (data.savedAnswers) {
                     setAnswers(data.savedAnswers);
                 }
-            } catch (err) {
+            } catch (err: any) {
                 console.error(err);
+                // Only alert if it's not a redirect
+                if (err.message) alert(err.message);
             } finally {
                 setLoading(false);
             }

@@ -19,6 +19,8 @@ RUN cd front && npm install
 
 # 5. Copy Source Code
 COPY back ./back
+# Force cache bust for frontend copy
+RUN echo "Cache bust 1"
 COPY front ./front
 
 # 6. Generate Prisma Client

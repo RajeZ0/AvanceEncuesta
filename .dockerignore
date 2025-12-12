@@ -15,3 +15,6 @@ README.md
 *.db-journal
 back/*.db
 back/*.db-journal
+.env
+front/.env
+back/.env
