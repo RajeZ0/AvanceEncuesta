@@ -20,7 +20,8 @@ export async function POST(request: Request) {
         cookieStore.delete('userRole');
         cookieStore.delete('sessionToken');
 
-        return NextResponse.redirect(new URL('/login', request.url));
+        // Return success response - client will handle redirect
+        return NextResponse.json({ success: true, message: 'Sesión cerrada correctamente' }, { status: 200 });
     } catch (error) {
         console.error('Logout error:', error);
         return NextResponse.json({ error: 'Error al cerrar sesión' }, { status: 500 });
