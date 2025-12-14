@@ -62,6 +62,30 @@ export function DashboardClient({ sections, user, completedSectionIds, currentSc
         }
     };
 
+    const handleLogout = async () => {
+        try {
+            const response = await fetch('/api/logout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (response.ok || response.redirected) {
+                // Redirect to login page
+                window.location.href = '/login';
+            } else {
+                console.error('Logout failed');
+                // Even if it fails, redirect to login as fallback
+                window.location.href = '/login';
+            }
+        } catch (error) {
+            console.error('Logout error:', error);
+            // Redirect to login even on error
+            window.location.href = '/login';
+        }
+    };
+
     return (
         <div className={`min-h-screen transition-colors duration-500 ${isDark ? 'bg-zinc-950' : 'bg-zinc-50'}`}>
             {/* Navbar */}
@@ -92,11 +116,13 @@ export function DashboardClient({ sections, user, completedSectionIds, currentSc
                                             <Users className="w-5 h-5" />
                                         </Link>
                                     )}
-                                    <form action="/api/logout" method="POST">
-                                        <button className="p-2 text-slate-500 hover:text-red-600 transition-colors" title="Cerrar Sesión">
-                                            <LogOut className="w-5 h-5" />
-                                        </button>
-                                    </form>
+                                    <button
+                                        onClick={handleLogout}
+                                        className="p-2 text-slate-500 hover:text-red-600 transition-colors"
+                                        title="Cerrar Sesión"
+                                    >
+                                        <LogOut className="w-5 h-5" />
+                                    </button>
                                 </>
                             ) : (
                                 <div className="flex items-center gap-3">
