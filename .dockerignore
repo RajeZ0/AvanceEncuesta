@@ -10,10 +10,8 @@ docker-compose.yml
 README.md
 *.md
 *.log
-# Exclude local database files to prevent locking/copying issues
-*.db
+# Exclude local database journals (but NOT the main dev.db - we want it pre-seeded)
 *.db-journal
-back/*.db
 back/*.db-journal
 .env
 front/.env

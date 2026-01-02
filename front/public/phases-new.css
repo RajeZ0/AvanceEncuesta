@@ -1,0 +1,130 @@
+/* Modern Phases Section Styles */
+.fases-section {
+    padding: var(--spacing-2xl) 0 !important;
+    background: var(--slate-50) !important;
+    color: var(--slate-900) !important;
+}
+
+.phases-modern-grid {
+    display: grid;
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-2xl);
+}
+
+@media (min-width: 768px) {
+    .phases-modern-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .phases-modern-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+.phase-card {
+    background: white;
+    padding: var(--spacing-xl);
+    border-radius: 16px;
+    border: 2px solid var(--slate-200);
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.phase-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+    border-color: var(--accent-gold);
+}
+
+.phase-badge {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 40px;
+    height: 40px;
+    background: var(--accent-gold);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: var(--font-weight-black);
+    font-size: 1.125rem;
+}
+
+.phase-icon-box {
+    width: 64px;
+    height: 64px;
+    background: var(--slate-100);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent-gold);
+    margin-bottom: var(--spacing-md);
+}
+
+.phase-card h3 {
+    font-size: 1.375rem;
+    font-weight: var(--font-weight-bold);
+    color: var(--slate-900);
+    margin-bottom: var(--spacing-sm);
+}
+
+.phase-card>p {
+    color: var(--slate-600);
+    margin-bottom: var(--spacing-md);
+    line-height: 1.6;
+    font-size: 0.9375rem;
+}
+
+.phase-items {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.phase-items li {
+    padding: var(--spacing-xs) 0 var(--spacing-xs) 20px;
+    position: relative;
+    color: var(--slate-700);
+    font-size: 0.875rem;
+}
+
+.phase-items li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--accent-gold);
+    font-weight: bold;
+}
+
+.cycle-note {
+    background: white;
+    border: 2px solid var(--accent-gold);
+    border-radius: 12px;
+    padding: var(--spacing-lg);
+    display: flex;
+    gap: var(--spacing-md);
+    align-items: flex-start;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.cycle-note svg {
+    flex-shrink: 0;
+    color: var(--accent-gold);
+    margin-top: 2px;
+}
+
+.cycle-note p {
+    color: var(--slate-700);
+    margin: 0;
+    line-height: 1.7;
+}
+
+.cycle-note strong {
+    color: var(--accent-gold);
+}

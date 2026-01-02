@@ -1,5 +1,14 @@
-import { LandingPage } from '@/components/LandingPage';
+'use client';
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
-  return <LandingPage />;
+  const router = useRouter();
+
+  useEffect(() => {
+    router.replace('/index.html');
+  }, [router]);
+
+  return null;
 }

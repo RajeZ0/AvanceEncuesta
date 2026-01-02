@@ -35,8 +35,8 @@ export function middleware(request: NextRequest) {
         }
     }
 
-    // Redirect /login to dashboard
-    if (pathname === '/login') {
+    // Redirect authenticated users away from /login to dashboard
+    if (pathname === '/login' && userId && sessionToken) {
         return NextResponse.redirect(new URL('/dashboard', request.url));
     }
 

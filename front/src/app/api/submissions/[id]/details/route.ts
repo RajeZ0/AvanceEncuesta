@@ -57,12 +57,15 @@ export async function GET(
             const totalQuestions = section.questions.length;
             const answeredQuestions = sectionAnswers.length;
 
-            // Calculate module score (average of answered questions)
-            const moduleScore = answeredQuestions > 0
-                ? sectionAnswers.reduce((sum, ans) => sum + (ans.score || 0), 0) / answeredQuestions
-                : null;
+            // Calculate module score (average of answered questions, converted to 0-100 scale)
+            let moduleScore: number | null = null;
+            if (answeredQuestions > 0) {
+                const avgScore = sectionAnswers.reduce((sum, ans) => sum + (ans.score || 0), 0) / answeredQuestions;
+                // Convert 1-5 scale to 0-100 percentage: (avg / 5) * 100
+                moduleScore = (avgScore / 5) * 100;
+            }
 
-            // Determine traffic light status
+            // Determine traffic light status based on percentage
             let trafficLight: 'EXCELLENT' | 'INTERMEDIATE' | 'BAD' | 'PENDING' = 'PENDING';
             if (moduleScore !== null) {
                 if (moduleScore >= 80) trafficLight = 'EXCELLENT';

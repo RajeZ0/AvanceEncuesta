@@ -5,20 +5,49 @@ import { useRouter } from 'next/navigation';
 import { Save, ArrowLeft, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 import { QuestionNavigation } from '@/components/QuestionNavigation';
+import { FormularioIdentificacion } from '@/components/FormularioIdentificacion';
 
 interface Question {
     id: string;
     text: string;
     type: 'SCALE' | 'BOOLEAN' | 'TEXT';
     weight: number;
+    options?: string; // JSON array of option labels
 }
 
 interface Section {
     id: string;
     title: string;
     description: string;
+    order: number;
     questions: Question[];
 }
+
+// Sistema de colores por módulo
+const moduleColors: Record<number, {
+    bg: string;
+    border: string;
+    accent: string;
+    selected: string;
+    hover: string;
+}> = {
+    0: { bg: 'bg-purple-50/30', border: 'border-purple-200', accent: 'bg-purple-500', selected: 'bg-purple-50 border-purple-500', hover: 'hover:border-purple-300 hover:bg-purple-50/50' },
+    1: { bg: 'bg-blue-50/30', border: 'border-blue-200', accent: 'bg-blue-500', selected: 'bg-blue-50 border-blue-500', hover: 'hover:border-blue-300 hover:bg-blue-50/50' },
+    2: { bg: 'bg-green-50/30', border: 'border-green-200', accent: 'bg-green-500', selected: 'bg-green-50 border-green-500', hover: 'hover:border-green-300 hover:bg-green-50/50' },
+    3: { bg: 'bg-amber-50/30', border: 'border-amber-200', accent: 'bg-amber-500', selected: 'bg-amber-50 border-amber-500', hover: 'hover:border-amber-300 hover:bg-amber-50/50' },
+    4: { bg: 'bg-pink-50/30', border: 'border-pink-200', accent: 'bg-pink-500', selected: 'bg-pink-50 border-pink-500', hover: 'hover:border-pink-300 hover:bg-pink-50/50' },
+    5: { bg: 'bg-indigo-50/30', border: 'border-indigo-200', accent: 'bg-indigo-500', selected: 'bg-indigo-50 border-indigo-500', hover: 'hover:border-indigo-300 hover:bg-indigo-50/50' },
+};
+
+// Instrucciones por módulo
+const moduleInstructions: Record<number, string> = {
+    0: 'Complete la información de identificación y contexto del municipio. Todos los campos marcados con * son obligatorios.',
+    1: 'Evalúe el marco legal y capacidad institucional de su municipio seleccionando la opción que mejor refleje la situación actual.',
+    2: 'Analice la planificación estratégica y alineación con objetivos de sustentabilidad. Considere tanto la visión como las acciones concretas.',
+    3: 'Califique los resultados e impactos logrados por las acciones de planificación implementadas en el territorio.',
+    4: 'Evalúe el nivel de participación ciudadana y stakeholders en los procesos de planificación del municipio.',
+    5: 'Ingrese datos cuantitativos sobre alineación con Objetivos de Desarrollo Sostenible.',
+};
 
 export default function SectionPage({ params }: { params: Promise<{ id: string }> }) {
     const resolvedParams = use(params);
@@ -187,119 +216,170 @@ export default function SectionPage({ params }: { params: Promise<{ id: string }
             </header>
 
             <main className="max-w-7xl mx-auto px-4 py-8">
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                    {/* Main Content - Questions */}
-                    <div className="lg:col-span-8 space-y-6">
-                        <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-200">
-                            <h2 className="text-2xl font-bold text-gray-900 mb-2">{section.title}</h2>
-                            <p className="text-gray-600 text-lg leading-relaxed">{section.description}</p>
-                            {isCompleted && (
-                                <div className="mt-4 p-4 bg-yellow-50 text-yellow-800 rounded-lg border border-yellow-200 text-sm">
-                                    Este módulo ha sido finalizado y no se pueden editar las respuestas.
+                {/* Módulo 0: Formulario de Identificación */}
+                {section.order === 0 ? (
+                    <FormularioIdentificacion
+                        onFinalizar={async () => {
+                            setSaving(true);
+                            try {
+                                const res = await fetch(`/api/section/${resolvedParams.id}/finalize`, {
+                                    method: 'POST',
+                                });
+                                if (res.ok) {
+                                    alert('Módulo 0 finalizado correctamente');
+                                    router.push('/dashboard');
+                                } else {
+                                    alert('Error al finalizar el módulo');
+                                }
+                            } catch (err) {
+                                console.error(err);
+                                alert('Error de conexión');
+                            } finally {
+                                setSaving(false);
+                            }
+                        }}
+                    />
+                ) : (
+                    /* Módulos 1-5: Preguntas normales */
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                        {/* Main Content - Questions */}
+                        <div className="lg:col-span-8 space-y-6">
+                            {/* Header con color de módulo */}
+                            <div className={`${moduleColors[section.order]?.bg || 'bg-gray-50'} p-8 rounded-xl shadow-lg border-2 ${moduleColors[section.order]?.border || 'border-gray-200'}`}>
+                                <h2 className="text-2xl font-bold text-gray-900 mb-2">{section.title}</h2>
+                                <p className="text-gray-600 text-lg leading-relaxed mb-4">{section.description}</p>
+
+                                {/* Banner de instrucciones */}
+                                <div className="mt-4 p-4 bg-white/80 backdrop-blur-sm rounded-lg border-l-4 border-gray-400 shadow-sm">
+                                    <p className="text-sm text-gray-700 leading-relaxed">
+                                        <span className="font-bold text-gray-900">📋 Instrucciones:</span> {moduleInstructions[section.order] || 'Complete todas las preguntas de este módulo.'}
+                                    </p>
                                 </div>
-                            )}
+
+                                {isCompleted && (
+                                    <div className="mt-4 p-4 bg-yellow-50 text-yellow-800 rounded-lg border border-yellow-200 text-sm">
+                                        Este módulo ha sido finalizado y no se pueden editar las respuestas.
+                                    </div>
+                                )}
+                            </div>
+
+                            {section.questions.map((q, index) => (
+                                <div
+                                    key={q.id}
+                                    id={q.id}
+                                    className={`bg-white p-8 rounded-xl shadow-lg border-2 ${moduleColors[section.order]?.border || 'border-gray-200'} transition-all duration-200 scroll-mt-28 ${isCompleted ? 'opacity-75 pointer-events-none' : `hover:shadow-xl ${moduleColors[section.order]?.hover || 'hover:shadow-md'}`
+                                        }`}
+                                >
+                                    <div className="flex items-start gap-4 mb-6">
+                                        <span className="flex-shrink-0 w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-sm font-bold border border-slate-200">
+                                            {index + 1}
+                                        </span>
+                                        <h3 className="text-gray-900 font-medium text-lg leading-tight">{q.text}</h3>
+                                    </div>
+
+                                    <div className="ml-12">
+                                        {q.type === 'BOOLEAN' && (
+                                            <div className="flex gap-4">
+                                                <label className={`flex-1 flex items-center justify-center px-6 py-3 rounded-lg border transition-all duration-200 ${answers[q.id] === 'true'
+                                                    ? 'bg-slate-100 border-slate-400 text-slate-900 font-semibold shadow-sm'
+                                                    : 'border-gray-200 text-gray-600'}`}>
+                                                    <input
+                                                        type="radio"
+                                                        name={q.id}
+                                                        value="true"
+                                                        checked={answers[q.id] === 'true'}
+                                                        onChange={(e) => handleAnswerChange(q.id, e.target.value)}
+                                                        className="hidden"
+                                                        disabled={isCompleted}
+                                                    />
+                                                    <span className="text-base">Sí</span>
+                                                </label>
+                                                <label className={`flex-1 flex items-center justify-center px-6 py-3 rounded-lg border transition-all duration-200 ${answers[q.id] === 'false'
+                                                    ? 'bg-slate-100 border-slate-400 text-slate-900 font-semibold shadow-sm'
+                                                    : 'border-gray-200 text-gray-600'}`}>
+                                                    <input
+                                                        type="radio"
+                                                        name={q.id}
+                                                        value="false"
+                                                        checked={answers[q.id] === 'false'}
+                                                        onChange={(e) => handleAnswerChange(q.id, e.target.value)}
+                                                        className="hidden"
+                                                        disabled={isCompleted}
+                                                    />
+                                                    <span className="text-base">No</span>
+                                                </label>
+                                            </div>
+                                        )}
+
+                                        {q.type === 'SCALE' && (
+                                            <div className="space-y-3">
+                                                {(() => {
+                                                    // Parse custom options or use defaults
+                                                    let optionLabels: string[];
+                                                    try {
+                                                        optionLabels = q.options
+                                                            ? JSON.parse(q.options)
+                                                            : ['Crítico/Nulo', 'Bajo', 'Regular', 'Bueno', 'Excelente'];
+                                                    } catch {
+                                                        optionLabels = ['Crítico/Nulo', 'Bajo', 'Regular', 'Bueno', 'Excelente'];
+                                                    }
+
+                                                    const colors = moduleColors[section.order] || moduleColors[1];
+
+                                                    return optionLabels.map((label, idx) => {
+                                                        const val = idx + 1;
+                                                        return (
+                                                            <label
+                                                                key={val}
+                                                                className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 ${answers[q.id] === String(val)
+                                                                        ? `${colors.selected} font-semibold shadow-md`
+                                                                        : `border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50 hover:shadow-sm`
+                                                                    }`}
+                                                            >
+                                                                <input
+                                                                    type="radio"
+                                                                    name={q.id}
+                                                                    value={val}
+                                                                    checked={answers[q.id] === String(val)}
+                                                                    onChange={(e) => handleAnswerChange(q.id, e.target.value)}
+                                                                    className="hidden"
+                                                                    disabled={isCompleted}
+                                                                />
+                                                                <span className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border-2 ${answers[q.id] === String(val)
+                                                                        ? `${colors.accent} text-white border-transparent`
+                                                                        : 'bg-gray-100 text-gray-500 border-gray-200'
+                                                                    }`}>
+                                                                    {val}
+                                                                </span>
+                                                                <span className="text-sm leading-snug">{label}</span>
+                                                            </label>
+                                                        );
+                                                    });
+                                                })()}
+                                            </div>
+                                        )}
+
+
+                                        {q.type === 'TEXT' && (
+                                            <textarea
+                                                value={answers[q.id] || ''}
+                                                onChange={(e) => handleAnswerChange(q.id, e.target.value)}
+                                                className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-200 focus:border-slate-400 outline-none min-h-[120px] text-gray-700 text-base transition-all bg-gray-50 focus:bg-white disabled:bg-gray-100 disabled:text-gray-500"
+                                                placeholder="Escriba su respuesta detallada aquí..."
+                                                disabled={isCompleted}
+                                            />
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
                         </div>
 
-                        {section.questions.map((q, index) => (
-                            <div
-                                key={q.id}
-                                id={q.id}
-                                className={`bg-white p-8 rounded-xl shadow-sm border border-gray-200 transition-shadow duration-200 scroll-mt-28 ${isCompleted ? 'opacity-75 pointer-events-none' : 'hover:shadow-md'}`}
-                            >
-                                <div className="flex items-start gap-4 mb-6">
-                                    <span className="flex-shrink-0 w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-sm font-bold border border-slate-200">
-                                        {index + 1}
-                                    </span>
-                                    <h3 className="text-gray-900 font-medium text-lg leading-tight">{q.text}</h3>
-                                </div>
-
-                                <div className="ml-12">
-                                    {q.type === 'BOOLEAN' && (
-                                        <div className="flex gap-4">
-                                            <label className={`flex-1 flex items-center justify-center px-6 py-3 rounded-lg border transition-all duration-200 ${answers[q.id] === 'true'
-                                                ? 'bg-slate-100 border-slate-400 text-slate-900 font-semibold shadow-sm'
-                                                : 'border-gray-200 text-gray-600'}`}>
-                                                <input
-                                                    type="radio"
-                                                    name={q.id}
-                                                    value="true"
-                                                    checked={answers[q.id] === 'true'}
-                                                    onChange={(e) => handleAnswerChange(q.id, e.target.value)}
-                                                    className="hidden"
-                                                    disabled={isCompleted}
-                                                />
-                                                <span className="text-base">Sí</span>
-                                            </label>
-                                            <label className={`flex-1 flex items-center justify-center px-6 py-3 rounded-lg border transition-all duration-200 ${answers[q.id] === 'false'
-                                                ? 'bg-slate-100 border-slate-400 text-slate-900 font-semibold shadow-sm'
-                                                : 'border-gray-200 text-gray-600'}`}>
-                                                <input
-                                                    type="radio"
-                                                    name={q.id}
-                                                    value="false"
-                                                    checked={answers[q.id] === 'false'}
-                                                    onChange={(e) => handleAnswerChange(q.id, e.target.value)}
-                                                    className="hidden"
-                                                    disabled={isCompleted}
-                                                />
-                                                <span className="text-base">No</span>
-                                            </label>
-                                        </div>
-                                    )}
-
-                                    {q.type === 'SCALE' && (
-                                        <div className="space-y-4">
-                                            <div className="flex justify-between gap-2 sm:gap-4">
-                                                {[1, 2, 3, 4, 5].map((val) => {
-                                                    const labels: Record<number, string> = {
-                                                        1: 'Crítico/Nulo',
-                                                        2: 'Bajo',
-                                                        3: 'Regular',
-                                                        4: 'Bueno',
-                                                        5: 'Excelente'
-                                                    };
-
-                                                    return (
-                                                        <label key={val} className={`flex-1 flex flex-col items-center justify-center py-4 rounded-xl border-2 cursor-pointer transition-all duration-200 group ${answers[q.id] === String(val)
-                                                            ? 'bg-blue-50 border-blue-500 text-blue-900 font-bold shadow-md'
-                                                            : 'border-gray-100 text-gray-500 hover:border-gray-300 hover:bg-gray-50'}`}>
-                                                            <input
-                                                                type="radio"
-                                                                name={q.id}
-                                                                value={val}
-                                                                checked={answers[q.id] === String(val)}
-                                                                onChange={(e) => handleAnswerChange(q.id, e.target.value)}
-                                                                className="hidden"
-                                                                disabled={isCompleted}
-                                                            />
-                                                            <span className="text-sm uppercase tracking-wider font-semibold text-center">{labels[val]}</span>
-                                                        </label>
-                                                    );
-                                                })}
-                                            </div>
-                                        </div>
-                                    )}
-
-
-                                    {q.type === 'TEXT' && (
-                                        <textarea
-                                            value={answers[q.id] || ''}
-                                            onChange={(e) => handleAnswerChange(q.id, e.target.value)}
-                                            className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-200 focus:border-slate-400 outline-none min-h-[120px] text-gray-700 text-base transition-all bg-gray-50 focus:bg-white disabled:bg-gray-100 disabled:text-gray-500"
-                                            placeholder="Escriba su respuesta detallada aquí..."
-                                            disabled={isCompleted}
-                                        />
-                                    )}
-                                </div>
-                            </div>
-                        ))}
+                        {/* Sidebar - Navigation */}
+                        <div className="lg:col-span-4">
+                            <QuestionNavigation questions={section.questions} answers={answers} />
+                        </div>
                     </div>
-
-                    {/* Sidebar - Navigation */}
-                    <div className="lg:col-span-4">
-                        <QuestionNavigation questions={section.questions} answers={answers} />
-                    </div>
-                </div>
+                )}
             </main>
         </div>
     );

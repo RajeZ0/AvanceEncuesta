@@ -9,6 +9,9 @@ import { SubmissionDetailModal } from '@/components/SubmissionDetailModal';
 import { ESTADO_MEXICO_MUNICIPALITIES } from '@/lib/municipalities';
 import { ExcelExporter } from '@/lib/exporters/ExcelExporter';
 import { PDFExporter } from '@/lib/exporters/PDFExporter';
+import { MunicipalityByStateChart } from '@/components/charts/MunicipalityByStateChart';
+import { StatusPieChart } from '@/components/charts/StatusPieChart';
+import { CompletionTrendChart } from '@/components/charts/CompletionTrendChart';
 
 interface SubmissionData {
     id: string;
@@ -106,9 +109,11 @@ export default function AdminDashboard() {
         }
     };
 
-    const filteredSubmissions = submissions.filter(sub =>
-        sub.user.username.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredSubmissions = submissions.filter(sub => {
+        const matchesSearch = sub.user.username.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesMunicipality = !municipalityFilter || sub.user.username.toLowerCase().includes(municipalityFilter.toLowerCase());
+        return matchesSearch && matchesMunicipality;
+    });
 
     const avgScore = submissions.filter(s => s.score !== null).reduce((acc, s) => acc + (s.score || 0), 0) / submissions.filter(s => s.score !== null).length || 0;
 
@@ -243,7 +248,7 @@ export default function AdminDashboard() {
                                 <span className={`text-xs font-bold uppercase tracking-wide ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Estado</span>
                             </div>
                             <p className={`text-3xl font-black mb-1 ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>
-                                {submissions.filter(s => s.status === 'SUBMITTED').length}
+                                {submissions.filter(s => s.status === 'SUBMITTED' || s.status === 'COMPLETED').length}
                             </p>
                             <p className={`text-sm font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Completados</p>
                         </div>
@@ -273,11 +278,56 @@ export default function AdminDashboard() {
                         </div>
                     </div>
 
+                    {/* Analytics Charts */}
+                    <div className="mb-12">
+                        <h2 className={`text-2xl font-bold mb-6 flex items-center gap-3 ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>
+                            <div className="w-1 h-8 bg-gradient-to-b from-blue-500 to-purple-500 rounded-full" />
+                            Análisis y Estadísticas
+                        </h2>
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12">
+                            <MunicipalityByStateChart
+                                data={submissions
+                                    .filter(s => s.score !== null)
+                                    .sort((a, b) => (b.score || 0) - (a.score || 0))
+                                    .slice(0, 10)
+                                    .map(sub => {
+                                        // Remove "Municipio de " prefix for cleaner labels
+                                        let name = sub.user.username.replace(/^Municipio de /i, '');
+                                        if (name.length > 12) name = name.substring(0, 10) + '...';
+                                        return {
+                                            state: name,
+                                            count: Math.round(sub.score || 0)
+                                        };
+                                    })
+                                }
+                            />
+                            <StatusPieChart
+                                data={[
+                                    { name: 'Completado', value: submissions.filter(s => s.status === 'SUBMITTED' || s.status === 'COMPLETED').length },
+                                    { name: 'En Progreso', value: submissions.filter(s => s.status === 'IN_PROGRESS' || s.status === 'DRAFT').length },
+                                    { name: 'Pendiente', value: submissions.filter(s => s.status === 'PENDING').length }
+                                ]}
+                            />
+                        </div>
+                        <div className="mb-12">
+                            <CompletionTrendChart
+                                data={[
+                                    { module: 'M0', completion: 100 },
+                                    { module: 'M1', completion: 85 },
+                                    { module: 'M2', completion: 70 },
+                                    { module: 'M3', completion: 60 },
+                                    { module: 'M4', completion: 45 },
+                                    { module: 'M5', completion: 0 }
+                                ]}
+                            />
+                        </div>
+                    </div>
+
                     {/* Traffic Lights Grid */}
                     <div className="mb-12">
                         <h2 className={`text-2xl font-bold mb-6 flex items-center gap-3 ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>
                             <div className="w-1 h-8 bg-gradient-to-b from-blue-500 to-purple-500 rounded-full" />
-                            Estado de Evaluaciones
+                            Estado de Evaluaciones (Semáforo)
                         </h2>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                             {filteredSubmissions.map((submission) => {
@@ -393,13 +443,15 @@ export default function AdminDashboard() {
             </div>
 
             {/* Submission Detail Modal */}
-            {selectedSubmissionId && (
-                <SubmissionDetailModal
-                    submissionId={selectedSubmissionId}
-                    isOpen={true}
-                    onClose={() => setSelectedSubmissionId(null)}
-                />
-            )}
-        </div>
+            {
+                selectedSubmissionId && (
+                    <SubmissionDetailModal
+                        submissionId={selectedSubmissionId}
+                        isOpen={true}
+                        onClose={() => setSelectedSubmissionId(null)}
+                    />
+                )
+            }
+        </div >
     );
 }

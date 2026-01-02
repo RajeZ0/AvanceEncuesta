@@ -1,7 +1,7 @@
 'use client';
 
 import { useTheme } from '@/contexts/ThemeContext';
-import { LogOut, FileText, CheckCircle2, Clock, TrendingUp, Users, ArrowRight, LayoutDashboard, Award, BarChart3 } from 'lucide-react';
+import { LogOut, FileText, CheckCircle2, Clock, TrendingUp, Users, ArrowRight, LayoutDashboard, Award, BarChart3, Home } from 'lucide-react';
 import { ThemeControls } from '@/components/ThemeControls';
 import Link from 'next/link';
 import { FinalizeButton } from './FinalizeButton';
@@ -72,17 +72,17 @@ export function DashboardClient({ sections, user, completedSectionIds, currentSc
             });
 
             if (response.ok || response.redirected) {
-                // Redirect to login page
-                window.location.href = '/login';
+                // Redirect to landing page
+                window.location.href = '/';
             } else {
                 console.error('Logout failed');
-                // Even if it fails, redirect to login as fallback
-                window.location.href = '/login';
+                // Even if it fails, redirect to landing page as fallback
+                window.location.href = '/';
             }
         } catch (error) {
             console.error('Logout error:', error);
-            // Redirect to login even on error
-            window.location.href = '/login';
+            // Redirect to landing page even on error
+            window.location.href = '/';
         }
     };
 
@@ -110,6 +110,9 @@ export function DashboardClient({ sections, user, completedSectionIds, currentSc
                                         <p className={`text-sm font-semibold ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>{user.username}</p>
                                     </div>
                                     <div className="h-8 w-px bg-slate-200 dark:bg-slate-700 mx-2 hidden md:block" />
+                                    <Link href="/" className="p-2 text-slate-500 hover:text-emerald-600 transition-colors" title="Ir a Inicio">
+                                        <Home className="w-5 h-5" />
+                                    </Link>
                                     <ThemeControls />
                                     {user.role === 'ADMIN' && (
                                         <Link href="/admin" className="p-2 text-slate-500 hover:text-blue-600 transition-colors" title="Panel Admin">

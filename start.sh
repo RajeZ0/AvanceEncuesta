@@ -1,29 +1,40 @@
 #!/bin/sh
 set -e
 
-echo "Synchronizing database schema..."
-# DATABASE_URL is provided by Render environment
-echo "Running: /app/node_modules/.bin/prisma db push --schema=/app/back/prisma/schema.prisma --force-reset"
-/app/node_modules/.bin/prisma db push --schema=/app/back/prisma/schema.prisma --force-reset
+DB_PATH="/app/back/dev.db"
 
-echo "Seeding database..."
-# Explicitly generate client to ensure both generators run
-echo "Generating Prisma Clients..."
-/app/node_modules/.bin/prisma generate --schema=/app/back/prisma/schema.prisma
+# Check if database already has data (User table has records)
+check_db_has_data() {
+    if [ -f "$DB_PATH" ]; then
+        # Check if User table exists and has data
+        COUNT=$(sqlite3 "$DB_PATH" "SELECT COUNT(*) FROM User;" 2>/dev/null || echo "0")
+        if [ "$COUNT" -gt "0" ]; then
+            return 0  # Has data
+        fi
+    fi
+    return 1  # No data
+}
 
-# Compile seed script to CommonJS to avoid ts-node/ESM issues
-echo "Compiling seed script..."
-npx tsc /app/back/prisma/seed.ts --outDir /app/back/prisma --module commonjs --target es2020 --skipLibCheck --moduleResolution node --esModuleInterop
+# Only seed if database is empty or doesn't exist
+if check_db_has_data; then
+    echo "✅ Database already has data, skipping seed..."
+else
+    echo "📦 Database is empty, running setup..."
+    
+    echo "Synchronizing database schema..."
+    /app/node_modules/.bin/prisma db push --schema=/app/back/prisma/schema.prisma
+    
+    echo "Generating Prisma Clients..."
+    /app/node_modules/.bin/prisma generate --schema=/app/back/prisma/schema.prisma
+    
+    echo "Compiling seed script..."
+    npx tsc /app/back/prisma/seed.ts --outDir /app/back/prisma --module commonjs --target es2020 --skipLibCheck --moduleResolution node --esModuleInterop
+    
+    echo "Running seed script..."
+    node /app/back/prisma/seed.js
+fi
 
-echo "Running seed script..."
-node /app/back/prisma/seed.js
-
-# 2. Start Application
-echo "Starting Frontend..."
+# Start Application
+echo "🚀 Starting Frontend..."
 cd /app/front
-# With standalone output, we run the standalone server
-# But we need to copy static files if we didn't use the minimal image strategy.
-# For simplicity with full image, 'npm start' is safer unless we reshuffle files.
-# However, 'npm start' works fine with standalone too, or we can run node server.js
-# Let's stick to npm run start for maximum compatibility unless size is critical.
 npm run start

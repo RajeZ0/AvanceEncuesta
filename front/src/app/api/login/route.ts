@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 // import { getDbPath } from '@/lib/dbPath';
 import { cookies } from 'next/headers';
 import crypto from 'crypto';
+import bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
 
 export async function POST(request: Request) {
@@ -22,7 +23,13 @@ export async function POST(request: Request) {
             where: { email },
         });
 
-        if (!user || user.password !== password) {
+        if (!user) {
+            return NextResponse.json({ error: 'Credenciales inválidas' }, { status: 401 });
+        }
+
+        const isValid = await bcrypt.compare(password, user.password);
+
+        if (!isValid) {
             return NextResponse.json({ error: 'Credenciales inválidas' }, { status: 401 });
         }
 
