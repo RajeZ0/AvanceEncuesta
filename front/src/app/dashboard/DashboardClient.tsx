@@ -114,6 +114,11 @@ export function DashboardClient({ sections, user, completedSectionIds, currentSc
                                         <Home className="w-5 h-5" />
                                     </Link>
                                     <ThemeControls />
+                                    {user.role !== 'ADMIN' && (
+                                        <Link href="/dashboard/my-results" className="p-2 text-slate-500 hover:text-emerald-600 transition-colors" title="Ver Mis Resultados">
+                                            <BarChart3 className="w-5 h-5" />
+                                        </Link>
+                                    )}
                                     {user.role === 'ADMIN' && (
                                         <Link href="/admin" className="p-2 text-slate-500 hover:text-blue-600 transition-colors" title="Panel Admin">
                                             <Users className="w-5 h-5" />

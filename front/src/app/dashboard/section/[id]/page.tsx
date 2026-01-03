@@ -56,6 +56,7 @@ export default function SectionPage({ params }: { params: Promise<{ id: string }
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [isCompleted, setIsCompleted] = useState(false);
+    const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
     const router = useRouter();
 
     useEffect(() => {
@@ -149,7 +150,8 @@ export default function SectionPage({ params }: { params: Promise<{ id: string }
         if (section) {
             const answeredCount = section.questions.filter(q => answers[q.id]).length;
             if (answeredCount < section.questions.length) {
-                alert(`No puede finalizar el módulo. Ha respondido ${answeredCount} de ${section.questions.length} preguntas.`);
+                setToast({ message: `No puede finalizar. Ha respondido ${answeredCount} de ${section.questions.length} preguntas.`, type: 'error' });
+                setTimeout(() => setToast(null), 3000);
                 return;
             }
         }
@@ -163,14 +165,19 @@ export default function SectionPage({ params }: { params: Promise<{ id: string }
             });
 
             if (res.ok) {
-                alert('Módulo finalizado correctamente');
-                router.push('/dashboard');
+                setToast({ message: '✓ ¡Módulo finalizado con éxito!', type: 'success' });
+                // Wait 2 seconds before redirecting so user can see the message
+                setTimeout(() => {
+                    router.push('/dashboard');
+                }, 2000);
             } else {
-                alert('Error al finalizar el módulo');
+                setToast({ message: 'Error al finalizar el módulo', type: 'error' });
+                setTimeout(() => setToast(null), 3000);
             }
         } catch (err) {
             console.error(err);
-            alert('Error de conexión');
+            setToast({ message: 'Error de conexión', type: 'error' });
+            setTimeout(() => setToast(null), 3000);
         } finally {
             setSaving(false);
         }
@@ -181,6 +188,22 @@ export default function SectionPage({ params }: { params: Promise<{ id: string }
 
     return (
         <div className="min-h-screen bg-gray-50 pb-20">
+            {/* Toast Notification */}
+            {toast && (
+                <div className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-50 px-6 py-4 rounded-xl shadow-2xl font-semibold text-white transition-all duration-300 animate-in fade-in slide-in-from-top-4 ${toast.type === 'success'
+                        ? 'bg-gradient-to-r from-emerald-500 to-green-600'
+                        : 'bg-gradient-to-r from-red-500 to-rose-600'
+                    }`}>
+                    <div className="flex items-center gap-3">
+                        {toast.type === 'success' ? (
+                            <CheckCircle className="w-6 h-6" />
+                        ) : (
+                            <span className="text-xl">⚠️</span>
+                        )}
+                        <span className="text-lg">{toast.message}</span>
+                    </div>
+                </div>
+            )}
             <header className="bg-white border-b border-gray-200 sticky top-0 z-20 shadow-sm">
                 <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
                     <Link href="/dashboard" className="flex items-center text-gray-600 hover:text-gray-900 transition-colors font-medium">
@@ -332,8 +355,8 @@ export default function SectionPage({ params }: { params: Promise<{ id: string }
                                                             <label
                                                                 key={val}
                                                                 className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 ${answers[q.id] === String(val)
-                                                                        ? `${colors.selected} font-semibold shadow-md`
-                                                                        : `border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50 hover:shadow-sm`
+                                                                    ? `${colors.selected} font-semibold shadow-md`
+                                                                    : `border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50 hover:shadow-sm`
                                                                     }`}
                                                             >
                                                                 <input
@@ -346,8 +369,8 @@ export default function SectionPage({ params }: { params: Promise<{ id: string }
                                                                     disabled={isCompleted}
                                                                 />
                                                                 <span className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border-2 ${answers[q.id] === String(val)
-                                                                        ? `${colors.accent} text-white border-transparent`
-                                                                        : 'bg-gray-100 text-gray-500 border-gray-200'
+                                                                    ? `${colors.accent} text-white border-transparent`
+                                                                    : 'bg-gray-100 text-gray-500 border-gray-200'
                                                                     }`}>
                                                                     {val}
                                                                 </span>
