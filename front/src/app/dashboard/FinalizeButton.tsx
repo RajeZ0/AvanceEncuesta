@@ -13,15 +13,20 @@ export function FinalizeButton({ disabled }: { disabled?: boolean }) {
         setLoading(true);
         try {
             const res = await fetch('/api/finalize', { method: 'POST' });
+            const data = await res.json();
+
             if (res.ok) {
-                const data = await res.json();
                 alert(`Evaluación enviada correctamente. Tu calificación final es: ${data.score.toFixed(2)}`);
                 router.refresh();
+            } else if (data.alreadySubmitted) {
+                alert('Esta evaluación ya fue enviada anteriormente.');
+                router.refresh();
             } else {
-                alert('Error al enviar la evaluación');
+                alert(data.error || 'Error al enviar la evaluación');
             }
         } catch (e) {
-            alert('Error de conexión');
+            console.error('Finalize error:', e);
+            alert('Error de conexión. Por favor intenta de nuevo.');
         } finally {
             setLoading(false);
         }

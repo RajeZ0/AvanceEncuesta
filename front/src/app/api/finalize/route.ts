@@ -13,11 +13,24 @@ export async function POST(request: Request) {
         }
 
         const submission = await prisma.submission.findFirst({
-            where: { userId, status: 'IN_PROGRESS' },
+            where: {
+                userId,
+                status: { not: 'SUBMITTED' }
+            },
             include: { answers: true },
+            orderBy: { createdAt: 'desc' }
         });
 
         if (!submission) {
+            // Try to find any submission for this user
+            const anySubmission = await prisma.submission.findFirst({
+                where: { userId },
+                orderBy: { createdAt: 'desc' }
+            });
+
+            if (anySubmission?.status === 'SUBMITTED') {
+                return NextResponse.json({ error: 'Esta evaluación ya fue enviada anteriormente', alreadySubmitted: true }, { status: 400 });
+            }
             return NextResponse.json({ error: 'No active submission found' }, { status: 404 });
         }
 
